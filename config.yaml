@@ -1,0 +1,18 @@
+epochs: 12
+log_n_steps: 1
+log_run: True
+use_early_stopping: False # Based on val acc
+early_stopping_patience: 5
+
+model:
+  n_layers: 4
+  n_classes: 10
+
+optim:
+  lr: 1.0e-4
+
+data:
+  name: cifar10
+  data_dir: ./data
+  batch_size: 64
+  num_workers: 4

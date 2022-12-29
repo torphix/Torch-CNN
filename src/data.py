@@ -4,9 +4,9 @@ import torchvision.transforms as transforms
 from torch.utils.data import DataLoader, Dataset
 
 
-def load_canoncial_vision_datasets(dataset_name, data_dir='./data', batch_size=16, num_workers=4):
+def load_canoncial_vision_datasets(name, data_dir='./data', batch_size=16, num_workers=4):
 
-    if dataset_name == 'cifar':
+    if name == 'cifar10':
         transform = transforms.Compose(
             [transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
