@@ -1,33 +1,39 @@
 import torch
-import torchvision
-import torchvision.transforms as transforms
-from torch.utils.data import DataLoader, Dataset
+import torch.nn as nn
 
 
-def load_canoncial_vision_datasets(dataset_name, data_dir='./data',):
+class VanillaCNN(torch.nn.Module):
+    def __init__(self, n_layers, n_classes):
+        super().__init__()
 
-    transform = transforms.Compose(
-        [transforms.ToTensor(),
-        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+        self.layers = nn.ModuleList()
+        # In Layer
+        self.layers.append(nn.Sequential(
+            nn.Conv2d(3, 32, 3, 1, 1),
+            nn.BatchNorm2d(32),
+            nn.ReLU(),
+        ))
 
-    batch_size = 4
+        # Intermediate Layers
+        in_d = 32
+        for i in range(n_layers-1):
+            self.layers.append(nn.Sequential(
+                nn.Conv2d(in_d, in_d*2, 3, 1, 0),
+                nn.BatchNorm2d(in_d*2),
+                nn.ReLU(),
+            ))
+            if in_d < 1024:
+                in_d *= 2
 
-    trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
-                                            download=True, transform=transform)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size,
-                                            shuffle=True, num_workers=2)
+        # Out Layer
+        self.layers.append(nn.Sequential(
+            nn.AdaptiveAvgPool2d(1),
+            nn.Flatten(),
+            nn.Linear(in_d, n_classes),
+        ))
 
-    testset = torchvision.datasets.CIFAR10(root='./data', train=False,
-                                        download=True, transform=transform)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=batch_size,
-                                            shuffle=False, num_workers=2)
+        self.layers = nn.Sequential(*self.layers)
 
-    classes = ('plane', 'car', 'bird', 'cat',
-            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
-    return trainloader, testloader, classes
-
-
-
-
-
+    def forward(self, x):
+        return self.layers(x)
 
