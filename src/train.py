@@ -79,7 +79,7 @@ class Trainer():
             loss.backward()
             self.optim.step()
 
-            running_acc += int(outputs.argmax() == y.argmax())
+            running_acc += self.calculate_metrics(outputs, y)
             running_loss += loss.detach().cpu().item()
 
         running_acc /= len(dataloader)
@@ -94,7 +94,7 @@ class Trainer():
             outputs = self.model(x)
             loss = self.loss(outputs, y)
 
-            running_acc += int(outputs.argmax() == y.argmax())
+            running_acc += self.calculate_metrics(outputs, y)
             running_loss += loss.detach().cpu().item()
 
         running_acc /= len(dataloader)
@@ -111,8 +111,9 @@ class Trainer():
         axs[0].set_xlabel('Epochs')
         axs[0].set_title('Training Loss')
         # Accuracy Plot
-        axs[1].plot(epochs, [i*100 for i in self.running_train_acc])
-        axs[1].plot(epochs, [i*100 for i in self.running_val_acc])
+        print(self.running_val_acc, self.running_train_acc)
+        axs[1].plot(epochs, [i for i in self.running_train_acc])
+        axs[1].plot(epochs, [i for i in self.running_val_acc])
         axs[1].set_xlabel('Epochs')
         axs[1].set_ylabel('Accuracy')
         axs[1].set_title('Training Accuracy')
@@ -145,3 +146,15 @@ class Trainer():
         if self.log_run:
             # Print only new row
             print("\n".join(self.metrics_table.get_string().splitlines()[-2:]))
+
+
+    def calculate_metrics(self, outputs, targets):
+        targets = targets.detach().cpu()
+        outputs = outputs.detach().cpu()
+        # Accuracy
+        _, outputs = torch.max(outputs, dim=1)
+        correct_vals = torch.sum(outputs == targets)
+        total_vals = outputs.shape[0]
+        acc =  ((correct_vals / total_vals) * 100).item()
+        return acc
+        

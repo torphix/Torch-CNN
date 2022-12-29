@@ -1,4 +1,4 @@
-epochs: 12
+epochs: 50
 log_n_steps: 1
 log_run: True
 use_early_stopping: False # Based on val acc
