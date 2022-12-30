@@ -5,8 +5,8 @@ use_early_stopping: False # Based on val acc
 early_stopping_patience: 5
 
 model:
+  model_name: vanilla_cnn
   n_layers: 4
-  n_classes: 10
 
 optim:
   lr: 1.0e-4

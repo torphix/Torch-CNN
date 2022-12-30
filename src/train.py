@@ -1,18 +1,14 @@
 import sys
-import yaml
 import torch
 import torch.nn as nn
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from src.model import VanillaCNN
 from prettytable import PrettyTable
-from src.data import load_canoncial_vision_datasets
 
 
-class Trainer():
-    def __init__(self, config):
-        with open(config, 'r') as f:
-            config = yaml.load(f.read(), Loader=yaml.FullLoader)
+class MultiClassTrainer():
+    def __init__(self, config, model, train_dataloader, test_dataloader):
+
         # Init hyperparams
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.epochs = config['epochs']
@@ -22,14 +18,13 @@ class Trainer():
         self.early_stopping_patience = config['early_stopping_patience']
 
         # Init Modules
-        self.model = VanillaCNN(**config['model']).to(self.device)
+        self.model = model.to(self.device)
         self.loss = nn.CrossEntropyLoss()
         self.optim = torch.optim.Adam(
             self.model.parameters(), **config['optim'])
 
         # Load Data
-        self.train_dataloader, self.val_dataloader, classes = load_canoncial_vision_datasets(
-            **config['data'])
+        self.train_dataloader, self.val_dataloader = train_dataloader, test_dataloader
 
         # Init Log Metrics
         self.metrics_table = PrettyTable(
@@ -125,9 +120,10 @@ class Trainer():
             running_accs = self.running_val_acc[-self.early_stopping_patience:]
             val_check = sum(
                 [1 if val_acc >= acc else 0 for acc in running_accs])
-            if val_check == 0:
-                test_loss, test_acc = self.eval_iter(self.train_dataloader)
+            if val_check == 0 and len(running_accs) > self.early_stopping_patience:
+                test_loss, test_acc = self.eval_iter(self.train_dataloader, -1)
                 print(f'Final Testset Accuracy {test_acc}')
+                self.save_model()
                 sys.exit(
                     f'Val Accuracy has not increased for {self.early_stopping_patience} epochs, Stopping')
 
@@ -147,7 +143,6 @@ class Trainer():
             # Print only new row
             print("\n".join(self.metrics_table.get_string().splitlines()[-2:]))
 
-
     def calculate_metrics(self, outputs, targets):
         targets = targets.detach().cpu()
         outputs = outputs.detach().cpu()
@@ -155,6 +150,9 @@ class Trainer():
         _, outputs = torch.max(outputs, dim=1)
         correct_vals = torch.sum(outputs == targets)
         total_vals = outputs.shape[0]
-        acc =  ((correct_vals / total_vals) * 100).item()
+        acc = ((correct_vals / total_vals) * 100).item()
         return acc
-        
+
+
+    def save_model(self):
+        torch.save(self.model.state_dict(), f'logs/{self.epochs}-model.pt')
