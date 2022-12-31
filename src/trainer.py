@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 from prettytable import PrettyTable
 
 
-class MultiClassTrainer():
+class Trainer():
     def __init__(self, config, model, train_dataloader, test_dataloader):
 
         # Init hyperparams

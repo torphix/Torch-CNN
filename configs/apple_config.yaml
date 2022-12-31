@@ -1,11 +1,11 @@
-epochs: 10
+epochs: 20
 log_n_steps: 1
 log_run: True
 use_early_stopping: True # Based on val acc
 early_stopping_patience: 5
 
 model:
-  model_name: resnet18
+  model_name: vanilla_cnn
   n_layers: 4
 
 optim:

@@ -1,0 +1,29 @@
+epochs: 100
+log_n_steps: 1
+log_run: True
+use_early_stopping: True # Based on val acc
+early_stopping_patience: 5
+
+model:
+  model_name: lstm
+  vocab_size: 99
+  padding_idx: 0
+
+optim:
+  lr: 1.0e-4
+
+data:
+  train_csv: data/train.csv
+  test_csv: data/test.csv
+  vocab_path: data/vocab.pickle
+  classes_path: data/classes.pickle
+  batch_size: 8
+  num_workers: 4
+
+preprocessing: 
+  file_path: data/tweet_emotions.csv
+  train_test_split: [0.9, 0.1]
+  n_samples_per_class: 1000 
+  remove_classes: []
+  vocab_black_list: []
+  output_path: ./data

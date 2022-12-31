@@ -40,10 +40,6 @@ class VanillaCNN(torch.nn.Module):
 
 
 class ResidualBlock(nn.Module):
-    '''
-    Adopts the 50 layer resnet configuration best trade off
-    between model size / capacity & available compute
-    '''
     def __init__(self, in_d, hid_d, out_d, stride, downsample=False):
         super().__init__()
         # 1x1 conv
@@ -84,11 +80,6 @@ class ResidualBlock(nn.Module):
         return x
 
 class ResNet(nn.Module):
-    '''
-    Adopts the 50 layer model_name
-    as the best trade off between size / capacity
-    & compute available
-    '''
     def __init__(self, in_d, n_layers, n_classes):
         super().__init__()
         self.in_layer = nn.Sequential(
