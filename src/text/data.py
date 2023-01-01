@@ -88,7 +88,7 @@ class TextClassificationDataset(Dataset):
             self.class_dict = pickle.load(handle)
 
     def __len__(self):
-        return 10
+        return len(self.data)
 
     def __getitem__(self, idx):
         raw_text = self.data['text'][idx]
